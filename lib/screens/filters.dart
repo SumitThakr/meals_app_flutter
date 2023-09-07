@@ -12,6 +12,12 @@ class FiltersScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('your Filters'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: Column(
         children: [

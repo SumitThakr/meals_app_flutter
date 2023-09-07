@@ -1,10 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app_flutter/providers/favorites_provider.dart';
 import 'package:meals_app_flutter/screens/categories.dart';
-import 'package:meals_app_flutter/screens/filters.dart';
 import 'package:meals_app_flutter/screens/meals.dart';
-import 'package:meals_app_flutter/widgets/main_drawer.dart';
 
 import '../providers/filters_provider.dart';
 
@@ -25,52 +24,10 @@ class TabsScreen extends ConsumerStatefulWidget {
 }
 
 class _TabsScreenState extends ConsumerState<TabsScreen> {
-  int _selectedPageIndex = 0;
-
-  void _selectPage(int index) {
-    setState(() {
-      _selectedPageIndex = index;
-    });
-  }
-
-  void _setScreen(String identifier) async {
-    Navigator.of(context).pop();
-    if (identifier == 'filters') {
-      await Navigator.of(context).push<Map<Filter, bool>>(
-        MaterialPageRoute(
-          builder: (ctx) => const FiltersScreen(),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final availableMeals = ref.watch(filteredMealsProvider);
-    Widget activePage = CategoriesScreen(
-      availableMeals: availableMeals,
-    );
-    var activePageTitle = 'Categories';
-
-    if (_selectedPageIndex == 1) {
-      final favoriteMeals = ref.watch(favoriteMealsProvider);
-      activePage = MealsScreen(
-        meals: favoriteMeals,
-      );
-      activePageTitle = 'Your Favorites';
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(activePageTitle),
-      ),
-      drawer: MainDrawer(
-        onSelectScreen: _setScreen,
-      ),
-      body: activePage,
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: _selectPage,
-        currentIndex: _selectedPageIndex, //active tab index
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.set_meal), label: 'Categories'),
@@ -80,6 +37,35 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
           ),
         ],
       ),
+      tabBuilder: (BuildContext context, int index) {
+        switch (index) {
+          case 0:
+            return CupertinoTabView(
+              builder: (context) {
+                var availableMeals = ref.watch(filteredMealsProvider);
+                return CupertinoPageScaffold(
+                  child: CategoriesScreen(
+                    availableMeals: availableMeals,
+                    title: 'Categories',
+                  ),
+                );
+              },
+            );
+          case 1:
+            return CupertinoTabView(
+              builder: (context) {
+                var favoriteMeals = ref.watch(favoriteMealsProvider);
+                return CupertinoPageScaffold(
+                  child: MealsScreen(
+                    meals: favoriteMeals,
+                    title: 'Your Favorites',
+                  ),
+                );
+              },
+            );
+        }
+        return const Text("Hello Last");
+      },
     );
   }
 }

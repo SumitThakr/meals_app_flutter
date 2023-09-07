@@ -5,11 +5,16 @@ import 'package:meals_app_flutter/screens/meals.dart';
 import 'package:meals_app_flutter/widgets/category_grid_item.dart';
 
 import '../models/meal.dart';
+import '../providers/filters_provider.dart';
+import '../widgets/main_drawer.dart';
+import 'filters.dart';
 
 class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key, required this.availableMeals});
+  const CategoriesScreen(
+      {super.key, required this.availableMeals, required this.title});
 
   final List<Meal> availableMeals;
+  final String title;
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
@@ -18,6 +23,7 @@ class CategoriesScreen extends StatefulWidget {
 class _CategoriesScreenState extends State<CategoriesScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   @override
   void initState() {
     super.initState();
@@ -53,50 +59,59 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     );
   }
 
+  ///For Drawer Navigation start ///
+  void _setScreen(String identifier) async {
+    Navigator.of(context).pop();
+    if (identifier == 'filters') {
+      await Navigator.of(context).push<Map<Filter, bool>>(
+        MaterialPageRoute(
+          builder: (ctx) => const FiltersScreen(),
+        ),
+      );
+    }
+  }
+
+  ///For Drawer Navigation end ///
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController,
-      child: GridView(
-        padding: const EdgeInsets.all(24),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-        ),
-        children: [
-          for (final category in availableCategories)
-            CategoryGridItem(
-              category: category,
-              onSelectCategory: () {
-                _selectCategory(context, category);
-              },
-            )
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
-      // builder: (context, child) => Padding(
-      //   padding: EdgeInsets.only(top: 100 - _animationController.value * 100),
-      //   child: child,
-      // ),
-      // builder: (context, child) => SlideTransition(
-      //   position: _animationController.drive(
-      //     Tween(
-      //       begin: const Offset(0, 0.3),
-      //       end: const Offset(0, 0),
-      //     ),
-      //   ),
-      //   child: child,
-      // ),
-      builder: (context, child) => SlideTransition(
-        position: Tween(
-          begin: const Offset(0, 0.3),
-          end: const Offset(0, 0),
-        ).animate(
-          CurvedAnimation(
-              parent: _animationController, curve: Curves.easeInOut),
+      drawer: MainDrawer(
+        onSelectScreen: _setScreen,
+      ),
+      body: AnimatedBuilder(
+        animation: _animationController,
+        child: GridView(
+          padding: const EdgeInsets.all(24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 3 / 2,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+          ),
+          children: [
+            for (final category in availableCategories)
+              CategoryGridItem(
+                category: category,
+                onSelectCategory: () {
+                  _selectCategory(context, category);
+                },
+              )
+          ],
         ),
-        child: child,
+        builder: (context, child) => SlideTransition(
+          position: Tween(
+            begin: const Offset(0, 0.3),
+            end: const Offset(0, 0),
+          ).animate(
+            CurvedAnimation(
+                parent: _animationController, curve: Curves.easeInOut),
+          ),
+          child: child,
+        ),
       ),
     );
   }
