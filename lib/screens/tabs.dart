@@ -30,7 +30,9 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       tabBar: CupertinoTabBar(
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.set_meal), label: 'Categories'),
+            icon: Icon(Icons.set_meal),
+            label: 'Categories',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star),
             label: 'Favorites',
@@ -64,7 +66,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
               },
             );
         }
-        return const Text("Hello Last");
+        return const Text("Not available");
       },
     );
   }
